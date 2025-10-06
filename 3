@@ -1,0 +1,34 @@
+import java.util.*;
+
+class EdgeK implements Comparable<EdgeK> {
+    int u,v,w;
+    EdgeK(int u,int v,int w){this.u=u;this.v=v;this.w=w;}
+    public int compareTo(EdgeK o){return this.w-o.w;}
+}
+
+public class Kruskal_ConNegativos {
+    static int[] p;
+    static int find(int x){return p[x]==x?x:(p[x]=find(p[x]));}
+
+    public static void main(String[] args){
+        List<EdgeK> edges = Arrays.asList(
+            new EdgeK(0,1,4), new EdgeK(0,2,-2), new EdgeK(1,2,1),
+            new EdgeK(1,3,5), new EdgeK(2,3,-3), new EdgeK(2,4,2),
+            new EdgeK(3,4,3)
+        );
+        Collections.sort(edges);
+        System.out.println("Aristas ordenadas:");
+        edges.forEach(e-> System.out.println(e.u+"-"+e.v+" : "+e.w));
+
+        int V=5; p=new int[V]; for(int i=0;i<V;i++)p[i]=i;
+        int total=0, ciclos=0;
+        System.out.println("\nProceso Kruskal:");
+        for(EdgeK e:edges){
+            int a=find(e.u), b=find(e.v);
+            if(a!=b){p[a]=b; total+=e.w; System.out.println("✔ "+e.u+"-"+e.v+" ("+e.w+")");}
+            else {ciclos++; System.out.println("✖ Ciclo detectado "+e.u+"-"+e.v);}
+        }
+        System.out.println("\nTotal ciclos descartados: "+ciclos);
+        System.out.println("Costo total MST: "+total);
+    }
+}
