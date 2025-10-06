@@ -1,0 +1,49 @@
+import java.util.*;
+
+public class RedSocial_Amigos {
+    static class Red {
+        Map<String, Set<String>> adj = new HashMap<>();
+
+        void addUser(String u){ adj.putIfAbsent(u,new HashSet<>()); }
+        void addFriend(String a,String b){
+            addUser(a); addUser(b);
+            adj.get(a).add(b); adj.get(b).add(a);
+        }
+
+        Set<String> recomendarAmigos(String u){
+            Set<String> res=new HashSet<>();
+            for(String amigo:adj.getOrDefault(u,Set.of()))
+                for(String amigo2:adj.getOrDefault(amigo,Set.of()))
+                    if(!amigo2.equals(u) && !adj.get(u).contains(amigo2))
+                        res.add(amigo2);
+            return res;
+        }
+
+        int rutaMasCorta(String u1,String u2){
+            Queue<String> q=new LinkedList<>();
+            Map<String,Integer> dist=new HashMap<>();
+            q.add(u1); dist.put(u1,0);
+            while(!q.isEmpty()){
+                String u=q.poll();
+                if(u.equals(u2)) return dist.get(u);
+                for(String v:adj.getOrDefault(u,Set.of()))
+                    if(!dist.containsKey(v)){
+                        dist.put(v,dist.get(u)+1);
+                        q.add(v);
+                    }
+            }
+            return -1;
+        }
+    }
+
+    public static void main(String[] args){
+        Red r=new Red();
+        r.addFriend("Ana","Luis");
+        r.addFriend("Ana","Maria");
+        r.addFriend("Luis","Carlos");
+        r.addFriend("Maria","Sofia");
+        System.out.println("Amigos de Ana: "+r.adj.get("Ana"));
+        System.out.println("Recomendaciones para Ana: "+r.recomendarAmigos("Ana"));
+        System.out.println("Ruta más corta Ana–Carlos: "+r.rutaMasCorta("Ana","Carlos")+" conexiones");
+    }
+}
