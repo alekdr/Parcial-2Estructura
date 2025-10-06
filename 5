@@ -1,0 +1,40 @@
+import java.util.*;
+
+public class Dijkstra_TodosLosNodos {
+    static int[] dijkstra(Map<Integer,List<int[]>> g,int n,int src){
+        int[] d=new int[n]; Arrays.fill(d,Integer.MAX_VALUE); d[src]=0;
+        PriorityQueue<int[]> pq=new PriorityQueue<>(Comparator.comparingInt(a->a[1]));
+        pq.add(new int[]{src,0});
+        while(!pq.isEmpty()){
+            int[] cur=pq.poll();
+            for(int[] e:g.getOrDefault(cur[0],List.of())){
+                if(d[e[0]]>cur[1]+e[1]){
+                    d[e[0]]=cur[1]+e[1];
+                    pq.add(new int[]{e[0],d[e[0]]});
+                }
+            }
+        }
+        return d;
+    }
+
+    public static void main(String[] args){
+        Map<Integer,List<int[]>> g=new HashMap<>();
+        g.put(0,List.of(new int[]{1,5},new int[]{2,9}));
+        g.put(1,List.of(new int[]{2,2},new int[]{3,6}));
+        g.put(2,List.of(new int[]{3,1}));
+        g.put(3,List.of(new int[]{0,7}));
+
+        int n=4; int[][] all=new int[n][n];
+        for(int i=0;i<n;i++) all[i]=dijkstra(g,n,i);
+
+        for(int i=0;i<n;i++)
+            System.out.println("Desde "+i+": "+Arrays.toString(all[i]));
+
+        int central=-1,min=Integer.MAX_VALUE;
+        for(int i=0;i<n;i++){
+            int sum=0; for(int j=0;j<n;j++) sum+=all[i][j];
+            if(sum<min){min=sum;central=i;}
+        }
+        System.out.println("Vértice más central: "+central+" (suma="+min+")");
+    }
+}
