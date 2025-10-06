@@ -1,0 +1,87 @@
+import java.util.*;
+
+public class MST_CostosMinimos {
+    static final int V = 10;
+    static final int INF = Integer.MAX_VALUE;
+
+    static int[][] generarGrafoAleatorio() {
+        Random r = new Random();
+        int[][] g = new int[V][V];
+        for (int i = 0; i < V; i++) {
+            for (int j = i + 1; j < V; j++) {
+                int peso = 1 + r.nextInt(100);
+                g[i][j] = g[j][i] = peso;
+            }
+        }
+        return g;
+    }
+
+    static List<String> prim(int[][] g) {
+        int[] key = new int[V];
+        boolean[] usado = new boolean[V];
+        int[] parent = new int[V];
+        Arrays.fill(key, INF);
+        key[0] = 0;
+        parent[0] = -1;
+        for (int c = 0; c < V - 1; c++) {
+            int u = -1, min = INF;
+            for (int v = 0; v < V; v++)
+                if (!usado[v] && key[v] < min) { min = key[v]; u = v; }
+            usado[u] = true;
+            for (int v = 0; v < V; v++)
+                if (g[u][v] != 0 && !usado[v] && g[u][v] < key[v]) {
+                    parent[v] = u; key[v] = g[u][v];
+                }
+        }
+        List<String> aristas = new ArrayList<>();
+        for (int i = 1; i < V; i++)
+            aristas.add(parent[i] + "-" + i);
+        return aristas;
+    }
+
+    static List<String> kruskal(int[][] g) {
+        List<int[]> edges = new ArrayList<>();
+        for (int i = 0; i < V; i++)
+            for (int j = i + 1; j < V; j++)
+                edges.add(new int[]{i, j, g[i][j]});
+        edges.sort(Comparator.comparingInt(a -> a[2]));
+
+        int[] p = new int[V];
+        for (int i = 0; i < V; i++) p[i] = i;
+
+        java.util.function.IntUnaryOperator find = new java.util.function.IntUnaryOperator() {
+            public int applyAsInt(int x) { return p[x] == x ? x : (p[x] = applyAsInt(p[x])); }
+        };
+
+        List<String> aristas = new ArrayList<>();
+        for (int[] e : edges) {
+            int a = find.applyAsInt(e[0]);
+            int b = find.applyAsInt(e[1]);
+            if (a != b) {
+                p[a] = b;
+                aristas.add(e[0] + "-" + e[1]);
+                if (aristas.size() == V - 1) break;
+            }
+        }
+        return aristas;
+    }
+
+    public static void main(String[] args) {
+        int[][] grafo = generarGrafoAleatorio();
+        System.out.println("Comparando Prim y Kruskal en grafo aleatorio (10 vértices):");
+
+        List<String> primEdges = prim(grafo);
+        List<String> kruskalEdges = kruskal(grafo);
+
+        System.out.println("\nAristas Prim: " + primEdges);
+        System.out.println("Aristas Kruskal: " + kruskalEdges);
+
+        if (new HashSet<>(primEdges).equals(new HashSet<>(kruskalEdges)))
+            System.out.println("\n✅ Ambos generan el mismo conjunto de aristas.");
+        else {
+            System.out.println("\n❌ Diferencias detectadas:");
+            System.out.println("Solo en Prim: " + new HashSet<>(primEdges).removeAll(kruskalEdges));
+            System.out.println("Solo en Kruskal: " + new HashSet<>(kruskalEdges).removeAll(primEdges));
+        }
+    }
+}
