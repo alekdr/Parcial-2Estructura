@@ -1,0 +1,48 @@
+import java.util.*;
+
+public class Prim_Modificado {
+    static int prim(int[][] g) {
+        int V = g.length;
+        int[] key = new int[V];
+        int[] parent = new int[V];
+        boolean[] usado = new boolean[V];
+        Arrays.fill(key, Integer.MAX_VALUE);
+        key[0] = 0; parent[0] = -1;
+        int comparaciones = 0;
+        List<Integer> orden = new ArrayList<>();
+
+        for (int c = 0; c < V - 1; c++) {
+            int min = Integer.MAX_VALUE, u = -1;
+            for (int v = 0; v < V; v++) {
+                comparaciones++;
+                if (!usado[v] && key[v] < min) { min = key[v]; u = v; }
+            }
+            usado[u] = true;
+            orden.add(u);
+            for (int v = 0; v < V; v++) {
+                comparaciones++;
+                if (g[u][v] != 0 && !usado[v] && g[u][v] < key[v]) {
+                    parent[v] = u; key[v] = g[u][v];
+                }
+            }
+        }
+
+        int total = 0;
+        for (int i = 1; i < V; i++) total += g[i][parent[i]];
+        System.out.println("Orden de selección: " + orden);
+        System.out.println("Comparaciones: " + comparaciones);
+        return total;
+    }
+
+    public static void main(String[] args) {
+        int[][] g = {
+            {0,2,0,6,0},
+            {2,0,3,8,5},
+            {0,3,0,0,7},
+            {6,8,0,0,9},
+            {0,5,7,9,0}
+        };
+        int costo = prim(g);
+        System.out.println("Costo total MST: " + costo);
+    }
+}
